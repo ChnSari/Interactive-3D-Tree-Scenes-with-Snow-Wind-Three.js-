@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Realistic Tree Scene</title>
+
+    <style>
+
+        body{
+            margin: 0;
+            overflow: hidden;
+            background: #bfe3ff;
+        }
+
+        canvas{
+            display: block;
+        }
+        
+    </style>
+</head>
+<body>
+    <canvas id="webgl"></canvas>
+
+    <script type="module">
+        import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160/build/three.module.js";
+
+        //scane
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color("#bfe3ff");
+
+        //camera
+        const camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 100);
+        camera.position.set(0, 0.5, 0.5);
+        camera.lookAt(0, 8, 0);
+
+        //renderer
+        const canvas = document.getElementById("webgl");
+
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+        renderer.setSize(innerWidth, innerHeight);
+        renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.6;
+
+        //lıght
+        scene.add(new THREE.DirectionalLight("#ffffff", 2.5));
+        scene.add(new THREE.AmbientLight("#ffffff", 1.2));
+
+        //realıstıc tree
+        function createTree(){
+            const group = new THREE.Group();
+
+            //trunk
+            const trunk = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.25,0.4,5,16),
+                new THREE.MeshStandardMaterial({ color:"#7a5230" })
+            );
+            trunk.position.y = 2.5;
+            group.add(trunk);
+
+            //branches
+            for(let i=0;i<12;i++){
+                const branch = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.05,0.1,2,8),
+                    new THREE.MeshStandardMaterial({ color:"#7a5230" })
+                );
+
+                branch.position.y = 3 + Math.random()*2;
+                branch.rotation.z = (Math.random()-0.5) * Math.PI/2;
+                branch.rotation.y = Math.random()*Math.PI*2;
+
+                group.add(branch);
+
+                //leaf clusters
+                for(let j=0;j<3;j++){
+                    const leaf = new THREE.Mesh(
+                        new THREE.SphereGeometry(0.6 + Math.random()*0.4, 8, 8),
+                        new THREE.MeshStandardMaterial({
+                            color: new THREE.Color().setHSL(0.33, 0.6, 0.3 + Math.random()*0.2)
+                        })
+                    );
+
+                    leaf.position.copy(branch.position);
+                    leaf.position.x += (Math.random()-0.5);
+                    leaf.position.y += Math.random();
+                    leaf.position.z += (Math.random()-0.5);
+
+                    group.add(leaf);
+                }
+            }
+            return group;
+        }
+
+        const Tree = createTree();
+        scene.add(Tree);
+
+        //snow
+        const count = 3000;
+        const positions = new Float32Array(count * 3);
+
+        for(let i=0;i<count;i++){
+            positions[i*3] = (Math.random()-0.5)*15;
+            positions[i*3+1] = Math.random()*20;
+            positions[i*3+2] = (Math.random()-0.5)*15;
+        }
+
+        const snowGeo = new THREE.BufferGeometry();
+        snowGeo.setAttribute("position", new THREE.BufferAttribute(positions,3));
+
+        const snowMat = new THREE.PointsMaterial({
+            size: 0.05,
+            color: "#ffffff"
+        });
+
+        const snow = new THREE.Points(snowGeo, snowMat);
+        scene.add(snow);
+
+        //animation
+        function animate(){
+            requestAnimationFrame(animate);
+
+            const pos = snowGeo.attributes.position.array;
+
+            for(let i=0;i<count;i++){
+                pos[i*3+1] -= 0.03;
+                if(pos[i*3+1] < 0){
+                    pos[i*3+1] = 20;
+                }
+            }
+
+            snowGeo.attributes.position.needsUpdate = true;
+
+            camera.position.x = Math.sin(Date.now()*0.0005)*0.1;
+            camera.lookAt(0,8,0);
+
+            renderer.render(scene,camera);
+            }
+            animate();
+
+            //resıze
+            window.addEventListener("resize",()=>{
+                camera.aspect = innerWidth/innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(innerWidth, innerHeight);
+                });
+    </script>
+    
+</body>
+</html>
