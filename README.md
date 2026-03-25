@@ -41,6 +41,10 @@ project/
 ├── realistic-tree/
 │   └── index.html
 │
+├── assets/
+│   └── img
+│        └── 1.png
+│
 └── README.md
 ```
 
