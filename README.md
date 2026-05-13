@@ -30,6 +30,9 @@ This repository provides practical and professional examples of **3D scene creat
 
 ---
 
+<img src="https://skillicons.dev/icons?i=html,css,js,php,bootstrap,tailwind,react,npm,nodejs,mysql,figma,photoshop,wordpress" height="40" />
+
+
 ##  Project Structure
 
 ```bash
@@ -164,7 +167,4 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
 ##  License
 
-This project is licensed under the MIT License.
-See: https://choosealicense.com/licenses/mit/
-
----
+[MIT](https://choosealicense.com/licenses/mit/)
